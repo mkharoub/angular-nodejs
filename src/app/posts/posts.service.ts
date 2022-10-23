@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {map, Subject, tap} from 'rxjs';
+import {map, Subject} from 'rxjs';
 import {Router} from "@angular/router";
 
 import {Post} from './post.model';
@@ -25,7 +25,8 @@ export class PostsService {
                   id: post._id,
                   title: post.title,
                   content: post.content,
-                  imagePath: post.imagePath
+                  imagePath: post.imagePath,
+                  creator: post.creator
                 }
               }
             ),
@@ -75,7 +76,7 @@ export class PostsService {
     this.httpClient.post<{ message: string, post: Post }>('http://localhost:3000/api/posts', postData)
       .subscribe(postData => {
         this.router.navigate(['/']);
-      })
+      });
   }
 
   updatePost(id: string, title: string, content: string, image: File | string) {

@@ -17,9 +17,6 @@ export const mimeTypeValidator = (control: AbstractControl): Promise<{ [key: str
     reader.onloadend = () => {
       //with using this array we'll look to the actual file not only on the extension.
       const arr = new Uint8Array(reader.result as ArrayBuffer).subarray(0, 4);
-      console.log("reader.result", reader.result)
-      console.log("Uint8Array", new Uint8Array(reader.result as any))
-      console.log("arr", arr)
 
       let isValid: boolean;
       let header = '';
