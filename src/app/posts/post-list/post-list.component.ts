@@ -1,8 +1,10 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
-import { Subscription } from 'rxjs';
+import {Component, OnInit, OnDestroy} from "@angular/core";
+import {Subscription} from 'rxjs';
 
-import { Post } from "../post.model";
-import { PostsService } from "../posts.service";
+import {Post} from "../post.model";
+import {PostsService} from "../posts.service";
+import {PageEvent} from "@angular/material/paginator";
+import {AuthService} from "../../auth/auth.service";
 
 @Component({
   selector: "app-post-list",
@@ -18,24 +20,48 @@ export class PostListComponent implements OnInit, OnDestroy {
   public posts: Post[] = [];
   public isLoading = false;
   private postsSub: Subscription | undefined;
+  private listenerSub$: Subscription | undefined;
+  public isAuthenticated = false;
 
-  constructor(public postsService: PostsService) {}
+  totalPosts = 0;
+  postsPerPage = 2;
+  pageSizeOptions = [1, 2, 5, 10];
+  currentPage = 1;
+
+  constructor(public postsService: PostsService, private authService: AuthService) {
+  }
 
   ngOnInit() {
     this.isLoading = true;
-    this.postsService.getPosts();
+    this.postsService.getPosts(this.postsPerPage, 1);
     this.postsSub = this.postsService.getPostUpdateListener()
-      .subscribe((posts: Post[]) => {
-        this.posts = posts;
+      .subscribe((postsData: { posts: Post[], postsCount: number }) => {
+        this.posts = postsData.posts;
+        this.totalPosts = postsData.postsCount;
         this.isLoading = false;
       });
+    this.listenerSub$ = this.authService.getAuthStatusListener().subscribe(isAuth => {
+      this.isAuthenticated = isAuth;
+    })
   }
 
   onDelete(id: string) {
-    this.postsService.deletePost(id);
+    this.postsService.deletePost(id).subscribe(() => {
+      this.isLoading = true;
+      this.postsService.getPosts(this.postsPerPage, this.currentPage);
+    });
+  }
+
+  onPageChanged(pageData: PageEvent) {
+    this.isLoading = true;
+    this.currentPage = pageData.pageIndex + 1;
+    this.postsPerPage = pageData.pageSize;
+
+    this.postsService.getPosts(this.postsPerPage, this.currentPage);
   }
 
   ngOnDestroy() {
     this.postsSub?.unsubscribe();
+    this.listenerSub$?.unsubscribe();
   }
 }

@@ -1,5 +1,8 @@
 <mat-toolbar color="primary">
   <a [routerLink]="'/'">MyMessages</a>
   <div class="spacer"></div>
-  <a mat-button="primary" [routerLink]="'/create'" routerLinkActive="mat-accent">Create Post!</a>
+  <a *ngIf="isAuthenticated" mat-button="primary" [routerLink]="'/create'" routerLinkActive="mat-accent">Create Post!</a>
+  <a *ngIf="!isAuthenticated" mat-button="primary" [routerLink]="'/login'" routerLinkActive="mat-accent">Login</a>
+  <a *ngIf="!isAuthenticated" mat-button="primary" [routerLink]="'/signup'" routerLinkActive="mat-accent">Sign up</a>
+  <button *ngIf="isAuthenticated" mat-button="primary" (click)="onLogout()">Logout</button>
 </mat-toolbar>
